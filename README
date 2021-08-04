@@ -5,6 +5,8 @@ Sky is an interpreter for the untyped λ-calculus, written in python for my own 
 
 It uses β-reductionand a metacircular evaluator: https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-26.html#%_sec_4.1
 
+Rewrite in Scheme/Haskell? Should I?
+
 Todo
 ====
 
