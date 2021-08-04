@@ -1,0 +1,16 @@
+Sky: A λ-Calculus Interpreter
+=============================
+
+Sky is an interpreter for the untyped λ-calculus, written in python for my own amusement.
+
+It uses list substitution (replacing all instaces of x in a list with y) and a metacircular evaluator: https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-26.html#%_sec_4.1
+
+Todo
+====
+
+1. Environment for Variables (typing λ-expressions is hard)
+2. α-equivalence
+3. Module System
+4. Better syntax
+
+The last two are pretty hard, I hope I have the patience to do them.

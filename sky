@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+
+import functools
+import sys
+
+'''
+== λ-Calculus Interpreter
+
+=== Goals
+1. β-Reduction
+2. α-equivalence
+3. Environment for Naming
+4. REPL
+5. File Support
+'''
+
+#== Helper Functions
+
+def isselfeval(ex):
+    return type(ex) == str or ex[0] == 'λ'
+
+def isapp(ex):
+    return len(ex) >= 2 and functools.reduce(lambda x, y: x or y, [i[0] == 'λ' for i in ex])
+
+def replace(l, a, b):
+    o = []
+    for i in l:
+        if i == a: o.append(b)
+        elif type(i) == list: o.append(replace(i, a, b))
+        else: o.append(i)
+    return o
+
+#== Evaluator
+
+def apply(fun, arg):
+    fun_args = fun[1]
+    fun_expr = fun[2]
+
+    if len(fun_args) == len(arg):
+        for i, j in zip(fun_args, arg):
+            fun_expr = replace(fun_expr, i, j)
+        return eval(fun_expr)
+    elif len(fun_args) > len(arg):
+        fun_args = fun_args[:len(arg)]
+        for i, j in zip(fun_args, arg):
+            fun_expr = replace(fun_expr, i, j)
+        return ['λ', fun[1][len(arg):], eval(fun_expr)]
+    elif len(fun_args) < len(arg):
+        arg = arg[:len(fun_args)]
+        for i, j in zip(fun_args, arg):
+            fun_expr = repalce(fun_expr, i, j)
+        o = [eval(fun_expr)]
+        o.extend(arg[len(fun_args)])
+        return o
+
+def eval(ex):
+    if ex == []:
+        return None
+    if isselfeval(ex):
+        return ex
+    elif isapp(ex):
+        if len(ex[1:]) > 1:
+            return apply(ex[0], ex[1:])
+        return apply(ex[0], [ex[1]])
+    elif type(ex) == list:
+        return [eval(i) for i in ex]
+
+#== REPL and Parsing
+# Parser copied straight from Peter Norvig's Lisp in Python article:
+# http://www.norvig.com/lispy.html
+
+def tokenize(s):
+    return s.replace('(', ' ( ').replace(')', ' ) ').replace('\\', 'λ ').split()
+
+def readtokens(tokens):
+    if len(tokens) == 0:
+        return []
+    token = tokens.pop(0)
+    if token == '(':
+        L = []
+        while tokens[0] != ')':
+            L.append(readtokens(tokens))
+        tokens.pop(0)
+        return L
+    elif token == ')':
+        raise SyntaxError('Unexpected \')\'')
+    else:
+        return token
+
+def parse(s):
+    return readtokens(tokenize(s))
+
+def outval(ast):
+    return repr(ast).replace('[', ' [ ').replace(']', ' ] ').replace('\'', '').replace(',', '')
+
+def repl(p='λ> '):
+    while True:
+        val = eval(parse(input(p)))
+        if val is not None:
+            print(outval(val))
+
+#== Reading From a File
+
+def fread(fname):
+    try:
+        f = open(fname, 'r')
+        lines = f.readlines()
+        for l in lines:
+            print(outval(eval(parse(l))))
+    except:
+        print("Error: file not found")
+
+#== Main and Command Line Args
+
+help = '''
+Sky, a λ-Calculus Interpreter
+
+Usage:
+    sky [option] <arguments>
+
+The options and args are:
+    -s <file>   load and run <file>
+    -h          help
+'''
+
+def main():
+    if len(sys.argv) == 1:
+        repl()
+    elif sys.argv[1] == '-h':
+        print(help)
+    elif sys.argv[1] == '-s' and len(sys.argv) == 3:
+        fread(sys.argv[2])
+    else:
+        print("Error: bad args")
+
+if __name__ == '__main__':
+    main()
