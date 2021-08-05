@@ -32,4 +32,4 @@ The syntax is as follows (for now):
       | MN       | (M N)         |
       +----------+---------------+
 
-You may have realized that this is similar to scheme's syntax, and that is true, the only difference is that lambdas are represented with either a "\" or a "λ" as opposed to "lambda"
+You may have realized that this is similar to scheme's syntax (parsing s-exprs is MUCH easier than parsing anything else), and that is true, the only difference is that lambdas are represented with either a "\" or a "λ" as opposed to "lambda"
