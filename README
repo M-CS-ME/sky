@@ -14,6 +14,9 @@ This is going for a rewrite, too many bugs that idk how to fix. Issues include:
 1. Transforming nested function application into currying
 2. Environment model
 
+I'm also probably going to try to learn a bit more about interpretation before I
+start the rewrite.
+
 Rewrite might be in haskell or just in python.
 --------------------------------------------------------------------------------
 
