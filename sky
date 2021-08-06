@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import functools
+import functools as ft
 import sys
 
 '''
@@ -19,8 +19,35 @@ import sys
 def isselfeval(ex):
     return type(ex) == str or ex[0] == 'λ'
 
+def islambda(ex):
+    return ex[0] == 'λ'
+
+def isdefine(ex):
+    return ex[0] == 'def'
+
 def isapp(ex):
-    return len(ex) >= 2 and functools.reduce(lambda x, y: x or y, [i[0] == 'λ' for i in ex])
+    l = ft.reduce(lambda x, y: x or y, [islambda(i) for i in ex])
+    return len(ex) >= 2 and l
+
+def isapp_nested(ex):
+    if type(ex) != list: return False
+    if len(ex) < 2: return False
+    a = False
+    for i in ex:
+        if i[0] == 'λ': a = True
+        elif type(i) == list: a = isapp_nested(i)
+    return True in [a, isapp(ex)] # python is retarded (True and not False => False)
+
+def flatten(ex):
+    o = []
+    for i in ex:
+        if type(i) == list and islambda(i):
+            o.append(i)
+        elif type(i) == list:
+            o.extend(i)
+        else:
+            o.append(i)
+    return o
 
 def replace(l, a, b):
     o = []
@@ -30,40 +57,65 @@ def replace(l, a, b):
         else: o.append(i)
     return o
 
+#== Environment
+
+class Env:
+    def __init__(self):
+        self.names = []
+        self.vals  = []
+
+    def isdef(self, name):
+        if name in self.names:
+            return True
+        return False
+
+    def val(self, name):
+        return self.vals[self.names.index(name)]
+
+    def defvar(self, name, val):
+        self.names.append(name)
+        self.vals.append(val)
+
+envr = Env()
+
 #== Evaluator
 
-def apply(fun, arg):
+def apply(fun, arg, env):
     fun_args = fun[1]
     fun_expr = fun[2]
 
     if len(fun_args) == len(arg):
         for i, j in zip(fun_args, arg):
             fun_expr = replace(fun_expr, i, j)
-        return eval(fun_expr)
+        return eval(fun_expr, env)
     elif len(fun_args) > len(arg):
         fun_args = fun_args[:len(arg)]
         for i, j in zip(fun_args, arg):
             fun_expr = replace(fun_expr, i, j)
-        return ['λ', fun[1][len(arg):], eval(fun_expr)]
+        return ['λ', fun[1][len(arg):], eval(fun_expr, env)]
     elif len(fun_args) < len(arg):
         arg = arg[:len(fun_args)]
         for i, j in zip(fun_args, arg):
-            fun_expr = repalce(fun_expr, i, j)
-        o = [eval(fun_expr)]
+            fun_expr = replace(fun_expr, i, j)
+        o = [fun_expr]
         o.extend(arg[len(fun_args)])
-        return o
+        return eval(o, env)
 
-def eval(ex):
+def eval(ex, env):
     if ex == []:
         return None
-    if isselfeval(ex):
-        return ex
+    if isdefine(ex):
+        return env.defvar(ex[1], ex[2])
+    elif env.isdef(ex):
+        return eval(env.val(ex), env)
     elif isapp(ex):
         if len(ex[1:]) > 1:
-            return apply(ex[0], ex[1:])
-        return apply(ex[0], [ex[1]])
+            return apply(ex[0], ex[1:], env)
+        return apply(ex[0], [ex[1]], env)
+    elif isselfeval(ex):
+        return ex
     elif type(ex) == list:
-        return [eval(i) for i in ex]
+        return [eval(i, env) for i in ex]
 
 #== REPL and Parsing
 # Parser copied straight from Peter Norvig's Lisp in Python article:
@@ -95,8 +147,10 @@ def outval(ast):
 
 def repl(p='λ> '):
     while True:
-        val = eval(parse(input(p)))
-        if val is not None:
+        val = eval(parse(input(p)), envr)
+        if val == 'exit':
+            exit()
+        elif val is not None:
             print(outval(val))
 
 #== Reading From a File
@@ -120,6 +174,7 @@ Usage:
 
 The options and args are:
     -s <file>   load and run <file>
+    -e '<ex>'   evaluate <expr>
     -h          help
 '''
 
@@ -130,8 +185,11 @@ def main():
         print(help)
     elif sys.argv[1] == '-s' and len(sys.argv) == 3:
         fread(sys.argv[2])
+    elif sys.argv[1] == '-e' and len(sys.argv) == 3:
+        print(outval(eval(parse(sys.argv[2]), envr)))
     else:
         print("Error: bad args")
 
 if __name__ == '__main__':
     main()
+    #print(isapp_nested(parse(sys.argv[2])))

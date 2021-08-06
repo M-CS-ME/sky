@@ -5,17 +5,29 @@ Sky is an interpreter for the untyped λ-calculus, written in python for my own 
 
 It uses β-reduction and an evaluator similar to: https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-26.html#%_sec_4.1
 
-Rewrite in Scheme/Haskell? Should I?
+Updates
+=======
 
-Todo
-====
+--------------------------------------------------------------------------------
+06 Aug 2021:
+This is going for a rewrite, too many bugs that idk how to fix. Issues include:
+1. Transforming nested function application into currying
+2. Environment model
+
+Rewrite might be in haskell or just in python.
+--------------------------------------------------------------------------------
+
+Goals
+=====
 
 1. Environment for Variables (typing λ-expressions is hard)
-2. α-equivalence
+2. α-equivalence (either internally or callable from the interpreter)
 3. Module System
 4. Better syntax
+5. IO (preferably using Monads, but idk if that's possible in an untyped language)
+6. Data structures (pairs, trees, lists, etc)
 
-The last two are pretty hard, I hope I have the patience to do them.
+Sky is considered complete when I can make a merge sort with it. Although I might choose to continue it.
 
 Tutorial
 ========
