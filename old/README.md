@@ -1,3 +1,7 @@
+**Some old stuff.** Most of these are either broken or incomplete attempts at
+this projects, not really worth looking at.
+
+<!--
 Sky: A λ-Calculus Interpreter
 =============================
 
@@ -48,3 +52,4 @@ The syntax is as follows (for now):
       +----------+---------------+
 
 You may have realized that this is similar to scheme's syntax (parsing s-exprs is MUCH easier than parsing anything else), and that is true, the only difference is that lambdas are represented with either a "\" or a "λ" as opposed to "lambda"
+-->
