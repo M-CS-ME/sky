@@ -1,3 +1,5 @@
+;; Turn this whole compiler into a "data-oriented" program. Table look up > adding variables. 
+
 (define (compile expr)
   (cond ((true? expr) '(λ (a b) a))
         ((false? expr) '(λ (a b) b))
